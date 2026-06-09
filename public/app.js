@@ -1,8 +1,7 @@
 let collections = [];
 let currentCollection = null;
 let history = [];
-let params = [];
-let headers = [];
+let lastResponseData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     loadCollections();
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     addParamRow();
     addHeaderRow();
-    setupResizeHandle();
 });
 
 function setupEventListeners() {
@@ -25,8 +23,6 @@ function setupEventListeners() {
     document.getElementById('downloadResponseBtn').addEventListener('click', downloadResponse);
     document.getElementById('formatBodyBtn').addEventListener('click', formatBody);
     document.getElementById('confirmSave').addEventListener('click', confirmSaveRequest);
-    document.getElementById('importBtn').addEventListener('click', importCollection);
-    document.getElementById('exportBtn').addEventListener('click', exportCollection);
 
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.dataset.tab));
@@ -37,7 +33,6 @@ function setupEventListeners() {
     });
 
     document.getElementById('authTypeSelect').addEventListener('change', updateAuthFields);
-    document.getElementById('responseFormat').addEventListener('change', updateResponseView);
 
     document.querySelectorAll('input[name="bodyType"]').forEach(radio => {
         radio.addEventListener('change', updateBodyType);
@@ -45,44 +40,6 @@ function setupEventListeners() {
 
     document.getElementById('urlInput').addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendRequest();
-    });
-
-    document.getElementById('requestTitle')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') sendRequest();
-    });
-
-    document.querySelector('.modal-close')?.addEventListener('click', closeSaveModal);
-    document.querySelector('.btn-cancel')?.addEventListener('click', closeSaveModal);
-}
-
-function setupResizeHandle() {
-    const handle = document.getElementById('resizeHandle');
-    const requestSection = document.querySelector('.request-section');
-    const responseSection = document.querySelector('.response-section');
-    let isResizing = false;
-
-    handle.addEventListener('mousedown', (e) => {
-        isResizing = true;
-        document.body.style.cursor = 'ns-resize';
-        document.body.style.userSelect = 'none';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (!isResizing) return;
-        const container = document.querySelector('.content');
-        const rect = container.getBoundingClientRect();
-        const offset = e.clientY - rect.top;
-        const totalHeight = rect.height;
-        const requestHeight = Math.max(150, Math.min(offset, totalHeight - 150));
-        requestSection.style.flex = 'none';
-        requestSection.style.height = requestHeight + 'px';
-        responseSection.style.flex = '1';
-    });
-
-    document.addEventListener('mouseup', () => {
-        isResizing = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
     });
 }
 
@@ -126,12 +83,12 @@ function addToHistory(req, res) {
 function renderHistory() {
     const list = document.getElementById('historyList');
     list.innerHTML = '';
-    history.forEach((item, i) => {
+    history.forEach((item) => {
         const div = document.createElement('div');
         div.className = 'history-item';
         div.innerHTML = `
             <span class="method-badge ${item.method}">${item.method}</span>
-            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(item.url)}</span>
+            <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${escapeHtml(item.url)}</span>
         `;
         div.addEventListener('click', () => {
             document.getElementById('methodSelect').value = item.method;
@@ -162,13 +119,13 @@ function renderCollections() {
 
     collections.forEach(col => {
         const div = document.createElement('div');
-        div.className = `collection-item ${currentCollection?.id === col.id ? 'active' : ''}`;
+        div.className = 'collection-item' + (currentCollection?.id === col.id ? ' active' : '');
         div.innerHTML = `
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
             </svg>
             <span style="flex:1">${escapeHtml(col.name)}</span>
-            <button class="delete-btn" data-id="${col.id}">&times;</button>
+            <button class="delete-btn">&times;</button>
         `;
         div.querySelector('span').addEventListener('click', () => selectCollection(col));
         div.querySelector('.delete-btn').addEventListener('click', (e) => {
@@ -186,7 +143,7 @@ function renderCollections() {
                 reqDiv.innerHTML = `
                     <span class="method-badge ${req.method}">${req.method}</span>
                     <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(req.name || req.url)}</span>
-                    <button class="delete-btn" data-id="${req.id}">&times;</button>
+                    <button class="delete-btn">&times;</button>
                 `;
                 reqDiv.querySelector('span:nth-child(2)').addEventListener('click', () => loadRequest(req));
                 reqDiv.querySelector('.delete-btn').addEventListener('click', (e) => {
@@ -222,7 +179,7 @@ async function deleteCollection(id) {
     if (!confirm('Delete this collection?')) return;
 
     try {
-        await fetch(`/api/collections/${id}`, { method: 'DELETE' });
+        await fetch('/api/collections/' + id, { method: 'DELETE' });
         collections = collections.filter(c => c.id !== id);
         if (currentCollection?.id === id) currentCollection = null;
         renderCollections();
@@ -238,7 +195,7 @@ function selectCollection(col) {
 
 async function deleteRequest(collectionId, requestId) {
     try {
-        await fetch(`/api/collections/${collectionId}/requests/${requestId}`, {
+        await fetch('/api/collections/' + collectionId + '/requests/' + requestId, {
             method: 'DELETE',
         });
         const col = collections.find(c => c.id === collectionId);
@@ -257,8 +214,9 @@ function loadRequest(req) {
     document.getElementById('bodyEditor').value = req.body || '';
 
     if (req.headers && req.headers.length > 0) {
-        headers = [...req.headers];
-        renderHeaders();
+        const editor = document.getElementById('headersEditor');
+        editor.innerHTML = '';
+        req.headers.forEach(h => addHeaderRowWith(h.key || '', h.value || ''));
     }
 }
 
@@ -272,33 +230,31 @@ async function sendRequest() {
     }
 
     btn.disabled = true;
-    btn.classList.add('loading');
+    btn.innerHTML = '<span class="loading"></span> Sending...';
 
     const method = document.getElementById('methodSelect').value;
     const reqHeaders = getKvData('headersEditor');
     const reqParams = getKvData('paramsEditor');
     const body = document.getElementById('bodyEditor').value;
 
-    // add auth header
     const authType = document.getElementById('authTypeSelect').value;
     if (authType === 'bearer') {
         const token = document.getElementById('authToken')?.value;
-        if (token) reqHeaders['Authorization'] = `Bearer ${token}`;
+        if (token) reqHeaders['Authorization'] = 'Bearer ' + token;
     } else if (authType === 'basic') {
         const user = document.getElementById('authUser')?.value;
         const pass = document.getElementById('authPass')?.value;
-        if (user) reqHeaders['Authorization'] = `Basic ${btoa(`${user}:${pass}`)}`;
+        if (user) reqHeaders['Authorization'] = 'Basic ' + btoa(user + ':' + pass);
     } else if (authType === 'apikey') {
         const key = document.getElementById('authKeyName')?.value;
         const value = document.getElementById('authKeyValue')?.value;
         if (key) reqHeaders[key] = value;
     }
 
-    // build url with params
     let fullUrl = url;
     const paramString = reqParams
         .filter(p => p.key)
-        .map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+        .map(p => encodeURIComponent(p.key) + '=' + encodeURIComponent(p.value))
         .join('&');
     if (paramString) {
         fullUrl += (url.includes('?') ? '&' : '?') + paramString;
@@ -308,42 +264,144 @@ async function sendRequest() {
         const res = await fetch('/api/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ method, url: fullUrl, headers: reqHeaders, body }),
+            body: JSON.stringify({ method: method, url: fullUrl, headers: reqHeaders, body: body }),
         });
         const data = await res.json();
+        lastResponseData = data;
         displayResponse(data);
-        addToHistory({ method, url: fullUrl }, data);
+        addToHistory({ method: method, url: fullUrl }, data);
     } catch (e) {
         displayResponse({ error: e.message });
     } finally {
         btn.disabled = false;
-        btn.classList.remove('loading');
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send';
+    }
+}
+
+function getKvData(editorId) {
+    const data = {};
+    const rows = document.querySelectorAll('#' + editorId + ' .kv-row');
+    rows.forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        if (checkbox && !checkbox.checked) return;
+        const inputs = row.querySelectorAll('input[type="text"]');
+        const key = inputs[0] ? inputs[0].value.trim() : '';
+        const value = inputs[1] ? inputs[1].value.trim() : '';
+        if (key) data[key] = value;
+    });
+    return data;
+}
+
+function addParamRow() {
+    const editor = document.getElementById('paramsEditor');
+    editor.appendChild(createKvRow('', '', ''));
+}
+
+function addHeaderRow() {
+    addHeaderRowWith('', '', '');
+}
+
+function addHeaderRowWith(key, value, desc) {
+    const editor = document.getElementById('headersEditor');
+    editor.appendChild(createKvRow(key || '', value || '', desc || ''));
+    updateHeaderBadge();
+}
+
+function createKvRow(key, value, desc) {
+    const row = document.createElement('div');
+    row.className = 'kv-row';
+    row.innerHTML = '<input type="checkbox" checked><input type="text" placeholder="Key" value="' + escapeHtml(key) + '"><input type="text" placeholder="Value" value="' + escapeHtml(value) + '"><input type="text" placeholder="Description" value="' + escapeHtml(desc) + '"><button class="remove-btn">&times;</button>';
+    row.querySelector('.remove-btn').addEventListener('click', function() {
+        row.remove();
+        updateHeaderBadge();
+    });
+    return row;
+}
+
+function updateHeaderBadge() {
+    const rows = document.querySelectorAll('#headersEditor .kv-row');
+    let filled = 0;
+    rows.forEach(function(row) {
+        var inputs = row.querySelectorAll('input[type="text"]');
+        if (inputs[0] && inputs[0].value.trim()) filled++;
+    });
+    document.getElementById('headersBadge').textContent = filled;
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.add('hidden'); });
+    document.getElementById(tabName + 'Panel').classList.remove('hidden');
+}
+
+function switchResponseTab(tabName) {
+    document.querySelectorAll('.response-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelector('[data-response-tab="' + tabName + '"]').classList.add('active');
+}
+
+function updateAuthFields() {
+    var type = document.getElementById('authTypeSelect').value;
+    var fields = document.getElementById('authFields');
+
+    if (type === 'none') {
+        fields.innerHTML = '';
+    } else if (type === 'bearer') {
+        fields.innerHTML = '<div class="auth-field"><label>Token</label><input type="text" id="authToken" placeholder="Enter bearer token"></div>';
+    } else if (type === 'basic') {
+        fields.innerHTML = '<div class="auth-field"><label>Username</label><input type="text" id="authUser" placeholder="Username"></div><div class="auth-field"><label>Password</label><input type="password" id="authPass" placeholder="Password"></div>';
+    } else if (type === 'apikey') {
+        fields.innerHTML = '<div class="auth-field"><label>Key Name</label><input type="text" id="authKeyName" placeholder="X-API-Key"></div><div class="auth-field"><label>Value</label><input type="text" id="authKeyValue" placeholder="Your API key"></div>';
+    }
+}
+
+function updateBodyType() {
+    var type = document.querySelector('input[name="bodyType"]:checked').value;
+    var editor = document.getElementById('bodyEditor');
+    if (type === 'none') {
+        editor.disabled = true;
+        editor.placeholder = 'Body disabled';
+    } else {
+        editor.disabled = false;
+        if (type === 'json') editor.placeholder = '{\n  "key": "value"\n}';
+        else if (type === 'xml') editor.placeholder = '<?xml version="1.0"?>\n<root></root>';
+        else if (type === 'text') editor.placeholder = 'Enter text body...';
+        else if (type === 'form') editor.placeholder = 'key=value&key2=value2';
+    }
+}
+
+function formatBody() {
+    var editor = document.getElementById('bodyEditor');
+    try {
+        var parsed = JSON.parse(editor.value);
+        editor.value = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        // not valid json
     }
 }
 
 function displayResponse(data) {
-    window.lastResponseData = data;
-    const area = document.getElementById('responseArea');
-    const statusBadge = document.getElementById('statusBadge');
-    const timeBadge = document.getElementById('timeBadge');
-    const sizeBadge = document.getElementById('sizeBadge');
+    var area = document.getElementById('responseArea');
+    var statusBadge = document.getElementById('statusBadge');
+    var timeBadge = document.getElementById('timeBadge');
+    var sizeBadge = document.getElementById('sizeBadge');
 
     if (data.error) {
-        area.innerHTML = `<div class="error-box">${escapeHtml(data.error)}</div>`;
+        area.innerHTML = '<div class="error-box">' + escapeHtml(data.error) + '</div>';
         statusBadge.textContent = 'Error';
         statusBadge.className = 'meta-item error';
-        timeBadge.textContent = data.latency ? `${data.latency}ms` : '';
+        timeBadge.textContent = data.latency ? data.latency + 'ms' : '';
         sizeBadge.textContent = '';
         return;
     }
 
-    const statusClass = data.status < 400 ? 'success' : 'error';
-    statusBadge.textContent = `${data.status} ${data.statusText}`;
-    statusBadge.className = `meta-item ${statusClass}`;
-    timeBadge.textContent = `${data.latency}ms`;
+    var statusClass = data.status < 400 ? 'success' : 'error';
+    statusBadge.textContent = data.status + ' ' + data.statusText;
+    statusBadge.className = 'meta-item ' + statusClass;
+    timeBadge.textContent = data.latency + 'ms';
     sizeBadge.textContent = formatSize(data.size);
 
-    const format = document.getElementById('responseFormat').value;
+    var format = document.getElementById('responseFormat').value;
     if (format === 'pretty' && typeof data.body === 'object') {
         area.innerHTML = syntaxHighlight(JSON.stringify(data.body, null, 2));
     } else if (format === 'raw') {
@@ -352,36 +410,27 @@ function displayResponse(data) {
         area.textContent = typeof data.body === 'string' ? data.body : JSON.stringify(data.body);
     }
 
-    // switch to body tab
-    document.querySelectorAll('.response-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.response-tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelector('[data-response-tab="body"]').classList.add('active');
-}
-
-function updateResponseView() {
-    const lastData = window.lastResponseData;
-    if (lastData) displayResponse(lastData);
 }
 
 function syntaxHighlight(json) {
     json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(
-        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
-        (match) => {
-            let cls = 'json-number';
-            if (/^"/.test(match)) {
-                if (/:$/.test(match)) {
-                    cls = 'json-key';
-                } else {
-                    cls = 'json-string';
-                }
-            } else if (/true|false/.test(match)) {
-                cls = 'json-boolean';
-            } else if (/null/.test(match)) {
-                cls = 'json-null';
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function(match) {
+        var cls = 'json-number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'json-key';
+            } else {
+                cls = 'json-string';
             }
-            return `<span class="${cls}">${match}</span>`;
+        } else if (/true|false/.test(match)) {
+            cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+            cls = 'json-null';
         }
-    );
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
 }
 
 function formatSize(bytes) {
@@ -392,25 +441,21 @@ function formatSize(bytes) {
 }
 
 function escapeHtml(text) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-async function copyResponse() {
-    const area = document.getElementById('responseArea');
-    try {
-        await navigator.clipboard.writeText(area.textContent);
-    } catch (e) {
-        console.log('Copy failed');
-    }
+function copyResponse() {
+    var area = document.getElementById('responseArea');
+    navigator.clipboard.writeText(area.textContent).catch(function() {});
 }
 
 function downloadResponse() {
-    const area = document.getElementById('responseArea');
-    const blob = new Blob([area.textContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    var area = document.getElementById('responseArea');
+    var blob = new Blob([area.textContent], { type: 'text/plain' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
     a.download = 'response.json';
     a.click();
@@ -422,11 +467,11 @@ function openSaveModal() {
         alert('Create a collection first');
         return;
     }
-    const modal = document.getElementById('saveModal');
-    const select = document.getElementById('saveToCollection');
-    select.innerHTML = collections.map(c =>
-        `<option value="${c.id}" ${c.id === currentCollection?.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
-    ).join('');
+    var modal = document.getElementById('saveModal');
+    var select = document.getElementById('saveToCollection');
+    select.innerHTML = collections.map(function(c) {
+        return '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>';
+    }).join('');
     document.getElementById('requestName').value = document.getElementById('urlInput').value.split('/').pop() || '';
     modal.classList.remove('hidden');
 }
@@ -436,14 +481,14 @@ function closeSaveModal() {
 }
 
 async function confirmSaveRequest() {
-    const name = document.getElementById('requestName').value;
-    const collectionId = document.getElementById('saveToCollection').value;
-    const col = collections.find(c => c.id === collectionId);
+    var name = document.getElementById('requestName').value;
+    var collectionId = document.getElementById('saveToCollection').value;
+    var col = collections.find(function(c) { return c.id === collectionId; });
 
     if (!col || !name) return;
 
-    const req = {
-        name,
+    var req = {
+        name: name,
         method: document.getElementById('methodSelect').value,
         url: document.getElementById('urlInput').value,
         headers: getKvData('headersEditor'),
@@ -452,49 +497,16 @@ async function confirmSaveRequest() {
     };
 
     try {
-        const res = await fetch(`/api/collections/${col.id}/requests`, {
+        var res = await fetch('/api/collections/' + col.id + '/requests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req),
         });
-        const saved = await res.json();
+        var saved = await res.json();
         col.requests.push(saved);
         renderCollections();
         closeSaveModal();
     } catch (e) {
         alert('Failed to save request');
     }
-}
-
-function importCollection() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
-            // TODO: import logic
-            alert('Import feature coming soon');
-        } catch (err) {
-            alert('Invalid JSON file');
-        }
-    };
-    input.click();
-}
-
-function exportCollection() {
-    if (!currentCollection) {
-        alert('Select a collection first');
-        return;
-    }
-    const blob = new Blob([JSON.stringify(currentCollection, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${currentCollection.name}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
 }
