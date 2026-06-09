@@ -1,0 +1,20 @@
+Title: Show HN: Apiflow – Simple API testing, no bloat
+
+Body:
+
+I built Apiflow because every API testing tool I tried was either bloated, required an account, or was 100MB+.
+
+Apiflow is a simple web app that runs on localhost. Clone, npm install, npm start. Done.
+
+Features:
+- Send any HTTP method
+- Custom headers
+- JSON body editor
+- Bearer token / Basic auth
+- Save requests in collections
+- Response time, status code, size
+- JSON syntax highlighting
+
+Tech: Express.js + vanilla HTML/CSS/JS. No frameworks.
+
+GitHub: https://github.com/quietdom/apiflow

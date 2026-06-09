@@ -3,87 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apiflow - Simple API Tester</title>
+    <title>Apiflow - API Tester</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app">
         <header class="header">
-            <h1>Apiflow</h1>
-            <p class="subtitle">Simple API testing. No bloat.</p>
+            <div class="header-left">
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    <span>Apiflow</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <div class="env-selector">
+                    <select id="envSelect">
+                        <option value="no-env">No Environment</option>
+                        <option value="dev">Development</option>
+                        <option value="staging">Staging</option>
+                        <option value="prod">Production</option>
+                    </select>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="importBtn" class="btn-icon" title="Import Collection">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </button>
+                <button id="exportBtn" class="btn-icon" title="Export Collection">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </button>
+                <button id="settingsBtn" class="btn-icon" title="Settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
         </header>
 
         <div class="main">
             <aside class="sidebar">
-                <div class="sidebar-header">
-                    <span>Collections</span>
-                    <button id="newCollectionBtn" class="btn-small">+ New</button>
+                <div class="sidebar-section">
+                    <div class="sidebar-header">
+                        <span>Collections</span>
+                        <button id="newCollectionBtn" class="btn-small">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="collectionsList" class="collections-list"></div>
                 </div>
-                <div id="collectionsList" class="collections-list"></div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-header">
+                        <span>History</span>
+                        <button id="clearHistoryBtn" class="btn-small">Clear</button>
+                    </div>
+                    <div id="historyList" class="history-list"></div>
+                </div>
             </aside>
 
             <main class="content">
-                <div class="request-bar">
-                    <select id="methodSelect" class="method-select">
-                        <option value="GET">GET</option>
-                        <option value="POST">POST</option>
-                        <option value="PUT">PUT</option>
-                        <option value="PATCH">PATCH</option>
-                        <option value="DELETE">DELETE</option>
-                        <option value="HEAD">HEAD</option>
-                        <option value="OPTIONS">OPTIONS</option>
-                    </select>
-                    <input type="text" id="urlInput" class="url-input" placeholder="https://api.example.com/endpoint">
-                    <button id="sendBtn" class="btn-send">Send</button>
-                    <button id="saveBtn" class="btn-save">Save</button>
-                </div>
+                <div class="request-section">
+                    <div class="request-bar">
+                        <div class="method-wrapper">
+                            <select id="methodSelect" class="method-select">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="PATCH">PATCH</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="HEAD">HEAD</option>
+                                <option value="OPTIONS">OPTIONS</option>
+                            </select>
+                        </div>
+                        <div class="url-wrapper">
+                            <input type="text" id="urlInput" class="url-input" placeholder="Enter request URL or paste cURL">
+                            <button id="pasteBtn" class="btn-paste" title="Paste from clipboard">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button id="sendBtn" class="btn-send">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"/>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                            <span>Send</span>
+                        </button>
+                        <button id="saveBtn" class="btn-save" title="Save to collection">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                        </button>
+                    </div>
 
-                <div class="tabs">
-                    <button class="tab active" data-tab="headers">Headers</button>
-                    <button class="tab" data-tab="body">Body</button>
-                    <button class="tab" data-tab="auth">Auth</button>
-                </div>
+                    <div class="request-tabs">
+                        <button class="tab active" data-tab="params">Params</button>
+                        <button class="tab" data-tab="headers">Headers <span class="tab-badge" id="headersBadge">0</span></button>
+                        <button class="tab" data-tab="body">Body</button>
+                        <button class="tab" data-tab="auth">Auth</button>
+                        <button class="tab" data-tab="scripts">Scripts</button>
+                    </div>
 
-                <div class="tab-content" id="headersTab">
-                    <div id="headersEditor" class="kv-editor">
-                        <div class="kv-row kv-header">
-                            <span>Key</span>
-                            <span>Value</span>
-                            <span></span>
+                    <div class="request-tabs-content">
+                        <div class="tab-panel" id="paramsPanel">
+                            <div class="kv-editor">
+                                <div class="kv-header">
+                                    <span class="kv-col-check"></span>
+                                    <span class="kv-col-key">Key</span>
+                                    <span class="kv-col-value">Value</span>
+                                    <span class="kv-col-desc">Description</span>
+                                    <span class="kv-col-actions"></span>
+                                </div>
+                                <div id="paramsEditor" class="kv-rows"></div>
+                            </div>
+                            <button id="addParamBtn" class="btn-add-row">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Add Parameter
+                            </button>
+                        </div>
+
+                        <div class="tab-panel hidden" id="headersPanel">
+                            <div class="kv-editor">
+                                <div class="kv-header">
+                                    <span class="kv-col-check"></span>
+                                    <span class="kv-col-key">Key</span>
+                                    <span class="kv-col-value">Value</span>
+                                    <span class="kv-col-desc">Description</span>
+                                    <span class="kv-col-actions"></span>
+                                </div>
+                                <div id="headersEditor" class="kv-rows"></div>
+                            </div>
+                            <button id="addHeaderBtn" class="btn-add-row">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Add Header
+                            </button>
+                        </div>
+
+                        <div class="tab-panel hidden" id="bodyPanel">
+                            <div class="body-toolbar">
+                                <div class="body-type-group">
+                                    <label class="radio-btn">
+                                        <input type="radio" name="bodyType" value="none" checked> None
+                                    </label>
+                                    <label class="radio-btn">
+                                        <input type="radio" name="bodyType" value="json"> JSON
+                                    </label>
+                                    <label class="radio-btn">
+                                        <input type="radio" name="bodyType" value="text"> Text
+                                    </label>
+                                    <label class="radio-btn">
+                                        <input type="radio" name="bodyType" value="xml"> XML
+                                    </label>
+                                    <label class="radio-btn">
+                                        <input type="radio" name="bodyType" value="form"> Form
+                                    </label>
+                                </div>
+                                <button id="formatBodyBtn" class="btn-format" title="Format JSON">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="16 18 22 12 16 6"/>
+                                        <polyline points="8 6 2 12 8 18"/>
+                                    </svg>
+                                    Format
+                                </button>
+                            </div>
+                            <div id="bodyContainer">
+                                <textarea id="bodyEditor" class="body-editor" placeholder='{\n  "key": "value"\n}'></textarea>
+                            </div>
+                        </div>
+
+                        <div class="tab-panel hidden" id="authPanel">
+                            <div class="auth-section">
+                                <div class="auth-type-select">
+                                    <label>Authorization Type</label>
+                                    <select id="authTypeSelect">
+                                        <option value="none">No Auth</option>
+                                        <option value="bearer">Bearer Token</option>
+                                        <option value="basic">Basic Auth</option>
+                                        <option value="apikey">API Key</option>
+                                    </select>
+                                </div>
+                                <div id="authFields" class="auth-fields"></div>
+                            </div>
+                        </div>
+
+                        <div class="tab-panel hidden" id="scriptsPanel">
+                            <div class="scripts-section">
+                                <div class="script-group">
+                                    <label>Pre-request Script</label>
+                                    <textarea id="preScript" class="script-editor" placeholder="// Runs before request"></textarea>
+                                </div>
+                                <div class="script-group">
+                                    <label>Test Script</label>
+                                    <textarea id="testScript" class="script-editor" placeholder="// Runs after response"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button id="addHeaderBtn" class="btn-add">+ Add Header</button>
                 </div>
 
-                <div class="tab-content hidden" id="bodyTab">
-                    <textarea id="bodyEditor" class="body-editor" placeholder='{\n  "key": "value"\n}'></textarea>
-                </div>
-
-                <div class="tab-content hidden" id="authTab">
-                    <div class="auth-options">
-                        <label>
-                            <input type="radio" name="authType" value="none" checked> None
-                        </label>
-                        <label>
-                            <input type="radio" name="authType" value="bearer"> Bearer Token
-                        </label>
-                        <label>
-                            <input type="radio" name="authType" value="basic"> Basic Auth
-                        </label>
-                    </div>
-                    <div id="authFields" class="auth-fields"></div>
-                </div>
+                <div class="resize-handle" id="resizeHandle"></div>
 
                 <div class="response-section">
                     <div class="response-header">
-                        <span>Response</span>
-                        <span id="responseMeta" class="response-meta"></span>
+                        <div class="response-tabs">
+                            <button class="response-tab active" data-response-tab="body">Body</button>
+                            <button class="response-tab" data-response-tab="headers">Headers</button>
+                            <button class="response-tab" data-response-tab="cookies">Cookies</button>
+                        </div>
+                        <div class="response-meta" id="responseMeta">
+                            <span class="meta-item" id="statusBadge"></span>
+                            <span class="meta-item" id="timeBadge"></span>
+                            <span class="meta-item" id="sizeBadge"></span>
+                        </div>
                     </div>
-                    <div id="responseArea" class="response-area">
-                        <p class="placeholder-text">Send a request to see the response</p>
+
+                    <div class="response-body">
+                        <div class="response-toolbar">
+                            <div class="response-format">
+                                <select id="responseFormat">
+                                    <option value="pretty">Pretty</option>
+                                    <option value="raw">Raw</option>
+                                    <option value="preview">Preview</option>
+                                </select>
+                            </div>
+                            <div class="response-actions">
+                                <button id="copyResponseBtn" class="btn-icon-sm" title="Copy Response">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                    </svg>
+                                </button>
+                                <button id="downloadResponseBtn" class="btn-icon-sm" title="Download">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="responseArea" class="response-area">
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                <p>Send a request to see the response</p>
+                                <span>Use Ctrl+Enter to send quickly</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="saveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save Request</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label>Request Name</label>
+                <input type="text" id="requestName" placeholder="My Request">
+                <label>Collection</label>
+                <select id="saveToCollection"></select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel">Cancel</button>
+                <button class="btn-primary" id="confirmSave">Save</button>
+            </div>
         </div>
     </div>
 

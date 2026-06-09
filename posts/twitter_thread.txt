@@ -1,0 +1,34 @@
+Tweet 1:
+I built Apiflow - a simple API tester.
+
+Postman is 200MB and requires an account. Apiflow is a single npm start.
+
+Clone, install, done. No bloat.
+
+github.com/quietdom/apiflow
+
+Tweet 2:
+Why I built it:
+
+- Postman requires an account
+- Insomnia wants your email  
+- Bruno is 100MB
+
+Apiflow runs locally. No account. No telemetry. No bloat.
+
+Tweet 3:
+Features:
+- Send any HTTP method
+- Custom headers
+- JSON body editor
+- Bearer token / Basic auth
+- Save requests in collections
+- Response time, status code, size
+- JSON syntax highlighting
+
+Tech: Express.js + vanilla JS. No frameworks.
+
+Tweet 4:
+Built by a teen developer. Open source. MIT license.
+
+github.com/quietdom/apiflow

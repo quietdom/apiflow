@@ -1,0 +1,43 @@
+Title: I built a simple API tester because Postman is too bloated
+
+Body:
+
+Hey r/webdev,
+
+I got tired of Postman being 200MB and requiring an account just to test an API endpoint. So I built Apiflow.
+
+**What it does:**
+- Send GET, POST, PUT, PATCH, DELETE requests
+- Custom headers
+- JSON body editor
+- Bearer token / Basic auth
+- Save requests in collections
+- Response time, status code, size
+- JSON syntax highlighting
+- Dark theme
+
+**How to use:**
+
+```bash
+git clone https://github.com/quietdom/apiflow.git
+cd apiflow
+npm install
+npm start
+```
+
+Opens at http://localhost:3456
+
+**Why:**
+- Postman requires an account
+- Insomnia wants your email
+- Bruno is 100MB
+- Apiflow runs locally. No account. No telemetry. No bloat.
+
+**Tech:**
+- Express.js
+- Vanilla HTML/CSS/JS
+- No frameworks
+
+Would love feedback. What features would you want added?
+
+GitHub: https://github.com/quietdom/apiflow
