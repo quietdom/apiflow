@@ -1,0 +1,19 @@
+{
+  "name": "apiflow",
+  "version": "1.0.0",
+  "description": "Simple API testing. No bloat.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["api", "testing", "rest", "http", "postman"],
+  "author": "quietdom",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
+    "uuid": "^9.0.0"
+  }
+}

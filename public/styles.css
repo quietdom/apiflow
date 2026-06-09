@@ -1,0 +1,500 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    height: 100vh;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    padding: 16px 24px;
+    background: #222;
+    border-bottom: 1px solid #333;
+}
+
+.header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 240px;
+    background: #1e1e1e;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #333;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-small {
+    background: #333;
+    border: none;
+    color: #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.btn-small:hover {
+    background: #444;
+}
+
+.collections-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.collection-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.collection-item:hover {
+    background: #2a2a2a;
+}
+
+.collection-item.active {
+    background: #333;
+}
+
+.collection-item .delete-btn {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.collection-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.request-bar {
+    display: flex;
+    gap: 8px;
+    padding: 16px 24px;
+    background: #222;
+    border-bottom: 1px solid #333;
+}
+
+.method-select {
+    background: #333;
+    border: 1px solid #444;
+    color: #4ade80;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 100px;
+}
+
+.url-input {
+    flex: 1;
+    background: #333;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.url-input:focus {
+    outline: none;
+    border-color: #666;
+}
+
+.btn-send {
+    background: #2563eb;
+    border: none;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.btn-send:hover {
+    background: #1d4ed8;
+}
+
+.btn-send:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.btn-save {
+    background: #333;
+    border: 1px solid #444;
+    color: #ccc;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #444;
+}
+
+.tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 24px;
+    background: #1e1e1e;
+    border-bottom: 1px solid #333;
+}
+
+.tab {
+    background: none;
+    border: none;
+    color: #888;
+    padding: 12px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+    color: #ccc;
+}
+
+.tab.active {
+    color: #fff;
+    border-bottom-color: #2563eb;
+}
+
+.tab-content {
+    padding: 16px 24px;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+.kv-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.kv-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 32px;
+    gap: 8px;
+    align-items: center;
+}
+
+.kv-header {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+}
+
+.kv-row input {
+    background: #2a2a2a;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.kv-row input:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.kv-row .remove-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}
+
+.kv-row .remove-btn:hover {
+    color: #ef4444;
+}
+
+.btn-add {
+    background: none;
+    border: 1px dashed #444;
+    color: #888;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 8px;
+    width: 100%;
+}
+
+.btn-add:hover {
+    border-color: #666;
+    color: #ccc;
+}
+
+.body-editor {
+    width: 100%;
+    height: 120px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'SF Mono', Monaco, monospace;
+    resize: vertical;
+}
+
+.body-editor:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.auth-options {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.auth-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.auth-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-fields input {
+    background: #2a2a2a;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.auth-fields input:focus {
+    outline: none;
+    border-color: #555;
+}
+
+.response-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #333;
+    overflow: hidden;
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: #1e1e1e;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid #333;
+}
+
+.response-meta {
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+}
+
+.response-meta .status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-weight: 500;
+}
+
+.response-meta .status.success {
+    background: #166534;
+    color: #4ade80;
+}
+
+.response-meta .status.error {
+    background: #7f1d1d;
+    color: #f87171;
+}
+
+.response-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.placeholder-text {
+    color: #555;
+    font-style: italic;
+}
+
+.response-area .json-key {
+    color: #93c5fd;
+}
+
+.response-area .json-string {
+    color: #86efac;
+}
+
+.response-area .json-number {
+    color: #fde68a;
+}
+
+.response-area .json-boolean {
+    color: #c4b5fd;
+}
+
+.response-area .json-null {
+    color: #f87171;
+}
+
+.saved-requests {
+    padding: 8px;
+}
+
+.saved-request {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.saved-request:hover {
+    background: #2a2a2a;
+}
+
+.saved-request .method {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.saved-request .method.GET { background: #166534; color: #4ade80; }
+.saved-request .method.POST { background: #854d0e; color: #facc15; }
+.saved-request .method.PUT { background: #1e3a5f; color: #60a5fa; }
+.saved-request .method.PATCH { background: #581c87; color: #c084fc; }
+.saved-request .method.DELETE { background: #7f1d1d; color: #f87171; }
+
+.saved-request .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.saved-request .delete-req {
+    opacity: 0;
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+}
+
+.saved-request:hover .delete-req {
+    opacity: 1;
+}
+
+.loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #333;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #f87171;
+    padding: 12px;
+    background: #7f1d1d22;
+    border-radius: 6px;
+    border: 1px solid #7f1d1d;
+}

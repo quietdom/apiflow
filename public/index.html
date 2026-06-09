@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apiflow - Simple API Tester</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>Apiflow</h1>
+            <p class="subtitle">Simple API testing. No bloat.</p>
+        </header>
+
+        <div class="main">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <span>Collections</span>
+                    <button id="newCollectionBtn" class="btn-small">+ New</button>
+                </div>
+                <div id="collectionsList" class="collections-list"></div>
+            </aside>
+
+            <main class="content">
+                <div class="request-bar">
+                    <select id="methodSelect" class="method-select">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="HEAD">HEAD</option>
+                        <option value="OPTIONS">OPTIONS</option>
+                    </select>
+                    <input type="text" id="urlInput" class="url-input" placeholder="https://api.example.com/endpoint">
+                    <button id="sendBtn" class="btn-send">Send</button>
+                    <button id="saveBtn" class="btn-save">Save</button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="headers">Headers</button>
+                    <button class="tab" data-tab="body">Body</button>
+                    <button class="tab" data-tab="auth">Auth</button>
+                </div>
+
+                <div class="tab-content" id="headersTab">
+                    <div id="headersEditor" class="kv-editor">
+                        <div class="kv-row kv-header">
+                            <span>Key</span>
+                            <span>Value</span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <button id="addHeaderBtn" class="btn-add">+ Add Header</button>
+                </div>
+
+                <div class="tab-content hidden" id="bodyTab">
+                    <textarea id="bodyEditor" class="body-editor" placeholder='{\n  "key": "value"\n}'></textarea>
+                </div>
+
+                <div class="tab-content hidden" id="authTab">
+                    <div class="auth-options">
+                        <label>
+                            <input type="radio" name="authType" value="none" checked> None
+                        </label>
+                        <label>
+                            <input type="radio" name="authType" value="bearer"> Bearer Token
+                        </label>
+                        <label>
+                            <input type="radio" name="authType" value="basic"> Basic Auth
+                        </label>
+                    </div>
+                    <div id="authFields" class="auth-fields"></div>
+                </div>
+
+                <div class="response-section">
+                    <div class="response-header">
+                        <span>Response</span>
+                        <span id="responseMeta" class="response-meta"></span>
+                    </div>
+                    <div id="responseArea" class="response-area">
+                        <p class="placeholder-text">Send a request to see the response</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
